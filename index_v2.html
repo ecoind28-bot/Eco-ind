@@ -1,0 +1,60 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1769e0"><link rel="manifest" href="manifest.json">
+<title>Stock Manager V4</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#f3f6fa;color:#17212b}
+header{background:#1769e0;color:white;padding:18px}header h1{margin:0;font-size:22px}header p{margin:5px 0 0}
+nav{display:flex;overflow:auto;background:white;position:sticky;top:0;border-bottom:1px solid #ddd}
+nav button{padding:13px;border:0;background:white;font-weight:bold;white-space:nowrap}nav .on{color:#1769e0;border-bottom:3px solid #1769e0}
+main{max-width:1000px;margin:auto;padding:14px}.sec{display:none}.sec.on{display:block}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.card{background:white;padding:14px;border-radius:14px;margin-bottom:12px;border:1px solid #e1e6eb}
+.stat b{display:block;font-size:25px;margin:8px 0}form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{font-size:12px;font-weight:bold}input,select{width:100%;padding:11px;border:1px solid #ccd4dc;border-radius:8px;margin-top:5px}
+.full{grid-column:1/-1}button.primary{background:#1769e0;color:white;border:0;padding:11px 15px;border-radius:8px;font-weight:bold}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.toolbar input{max-width:280px;margin:0}
+.table{overflow:auto}table{width:100%;border-collapse:collapse}th,td{padding:9px;border-bottom:1px solid #e7ebef;text-align:left;font-size:13px;white-space:nowrap}
+.low{color:#c62828;font-weight:bold}.muted{font-size:12px;color:#687585}
+@media(max-width:700px){.grid{grid-template-columns:1fr 1fr}form{grid-template-columns:1fr}.full{grid-column:auto}}
+</style></head><body>
+<header><h1>Stock Manager V4</h1><p>Business Stock • Raw Material • Sales • Reports</p></header>
+<nav><button class="on" onclick="tab('dash',this)">Dashboard</button><button onclick="tab('prod',this)">Products</button><button onclick="tab('in',this)">Stock In</button><button onclick="tab('out',this)">Stock Out</button><button onclick="tab('sale',this)">Sales</button><button onclick="tab('rep',this)">Reports</button></nav>
+<main>
+<section id="dash" class="sec on"><div class="grid">
+<div class="card stat">Total Items<b id="a">0</b><span class="muted">Products / Raw Material</span></div>
+<div class="card stat">Current Qty<b id="b">0</b><span class="muted">All stock</span></div>
+<div class="card stat">Low Stock<b id="c">0</b><span class="muted">Below minimum</span></div>
+<div class="card stat">Sales<b id="d">₹0</b><span class="muted">Total recorded</span></div>
+</div><div class="card"><h3>Quick Actions</h3><button class="primary" onclick="tab('prod',document.querySelectorAll('nav button')[1])">+ Add Product</button> <button class="primary" onclick="tab('in',document.querySelectorAll('nav button')[2])">+ Stock In</button> <button class="primary" onclick="tab('sale',document.querySelectorAll('nav button')[4])">+ Sale</button><p class="muted">Data is saved on this device/browser.</p></div></section>
+
+<section id="prod" class="sec"><div class="card"><h2>Products / Raw Material</h2><form id="pf">
+<label>Name<input id="pn" required></label><label>SKU / Code<input id="ps"></label>
+<label>Category<select id="pc"><option>Raw Material</option><option>Finished Goods</option><option>Other</option></select></label>
+<label>Unit<input id="pu" value="pcs"></label><label>Opening Qty<input id="pq" type="number" min="0" value="0"></label><label>Minimum Stock<input id="pm" type="number" min="0" value="0"></label>
+<button class="primary full">Save Product</button></form></div><div class="card"><input id="search" placeholder="Search product..." oninput="render()"><div class="table"><table><thead><tr><th>Name</th><th>SKU</th><th>Category</th><th>Qty</th><th>Unit</th><th>Min</th></tr></thead><tbody id="pr"></tbody></table></div></div></section>
+
+<section id="in" class="sec"><div class="card"><h2>Stock In / Purchase</h2><form id="inf"><label>Product<select id="ip" required></select></label><label>Quantity<input id="iq" type="number" min="0.01" step="0.01" required></label><label>Supplier<input id="is"></label><label>Location / Store<input id="il"></label><label>Purchase Rate<input id="ir" type="number" min="0"></label><label>Date<input id="id" type="date"></label><button class="primary full">Add Stock In</button></form></div></section>
+
+<section id="out" class="sec"><div class="card"><h2>Stock Out / Issue</h2><form id="of"><label>Product<select id="op" required></select></label><label>Quantity<input id="oq" type="number" min="0.01" step="0.01" required></label><label>Customer / Department<input id="oc"></label><label>Location / Site<input id="ol"></label><label>Reason<select id="or"><option>Sale</option><option>Production</option><option>Transfer</option><option>Damage</option><option>Other</option></select></label><label>Date<input id="od" type="date"></label><button class="primary full">Add Stock Out</button></form></div></section>
+
+<section id="sale" class="sec"><div class="card"><h2>Sales Entry</h2><form id="sf"><label>Product<select id="sp" required></select></label><label>Quantity<input id="sq" type="number" min="0.01" step="0.01" required></label><label>Customer<input id="sn"></label><label>Place / City<input id="sl" placeholder="Kahan sell hua"></label><label>Sale Rate<input id="sr" type="number" min="0" step=".01" required></label><label>Date<input id="sd" type="date"></label><button class="primary full">Save Sale & Reduce Stock</button></form></div><div class="card"><div class="table"><table><thead><tr><th>Date</th><th>Product</th><th>Customer</th><th>Place</th><th>Qty</th><th>Amount</th></tr></thead><tbody id="sales"></tbody></table></div></div></section>
+
+<section id="rep" class="sec"><div class="card"><h2>Reports</h2><button class="primary" onclick="csv()">Download CSV</button><div class="table"><table><thead><tr><th>Date</th><th>Type</th><th>Product</th><th>Qty</th><th>Party</th><th>Place</th></tr></thead><tbody id="mv"></tbody></table></div></div></section>
+</main>
+<script>
+let db=JSON.parse(localStorage.getItem('smv4')||'{"p":[],"m":[],"s":[]}'),today=new Date().toISOString().slice(0,10);
+['id','od','sd'].forEach(x=>document.getElementById(x).value=today);
+function save(){localStorage.setItem('smv4',JSON.stringify(db));render()}
+function tab(id,btn){document.querySelectorAll('.sec').forEach(x=>x.classList.remove('on'));document.getElementById(id).classList.add('on');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));btn.classList.add('on');render()}
+function esc(x=''){return String(x).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function fill(){['ip','op','sp'].forEach(id=>document.getElementById(id).innerHTML='<option value="">Select product</option>'+db.p.map(p=>`<option value="${p.id}">${esc(p.n)} — ${p.q} ${esc(p.u)}</option>`).join(''))}
+function get(id){return db.p.find(p=>p.id===id)}
+function move(type,id,q,party,place,date){let p=get(id);q=Number(q);if(!p){alert('Product select karo.');return false}if(!Number.isFinite(q)||q<=0){alert('Quantity sahi se enter karo (0 se zyada).');return false}p.q=Number(p.q)||0;if(type==='IN'){p.q+=q}else{if(q>p.q+1e-9){alert('Stock kam hai. Current stock: '+p.q);return false}p.q=Math.max(0,p.q-q)}db.m.unshift({date,type,id,q,party,place});return true}
+pf.onsubmit=e=>{e.preventDefault();db.p.push({id:crypto.randomUUID(),n:pn.value.trim(),s:ps.value,c:pc.value,u:pu.value||'pcs',q:+pq.value||0,min:+pm.value||0});e.target.reset();pu.value='pcs';save();alert('Product saved')}
+inf.onsubmit=e=>{e.preventDefault();if(move('IN',ip.value,+iq.value,is.value,il.value,id.value)){e.target.reset();id.value=today;save();alert('Stock In saved')}}
+of.onsubmit=e=>{e.preventDefault();if(move('OUT',op.value,+oq.value,oc.value,ol.value,od.value)){e.target.reset();od.value=today;save();alert('Stock Out saved')}}
+sf.onsubmit=e=>{e.preventDefault();let q=+sq.value,r=+sr.value,p=get(sp.value);if(p&&move('OUT',p.id,q,sn.value,sl.value,sd.value)){db.s.unshift({date:sd.value,id:p.id,n:sn.value,l:sl.value,q,r,amt:q*r});e.target.reset();sd.value=today;save();alert('Sale saved & stock reduced')}}
+function render(){fill();let q=(search.value||'').toLowerCase();pr.innerHTML=db.p.filter(p=>(p.n+p.s+p.c).toLowerCase().includes(q)).map(p=>`<tr><td>${esc(p.n)}</td><td>${esc(p.s)}</td><td>${esc(p.c)}</td><td class="${p.q<=p.min?'low':''}">${p.q}</td><td>${esc(p.u)}</td><td>${p.min}</td></tr>`).join('')||'<tr><td colspan=6>No products</td></tr>';sales.innerHTML=db.s.map(x=>{let p=get(x.id);return `<tr><td>${x.date}</td><td>${esc(p?.n||'')}</td><td>${esc(x.n)}</td><td>${esc(x.l)}</td><td>${x.q}</td><td>₹${x.amt.toFixed(2)}</td></tr>`}).join('')||'<tr><td colspan=6>No sales</td></tr>';mv.innerHTML=db.m.map(x=>`<tr><td>${x.date}</td><td>${x.type}</td><td>${esc(get(x.id)?.n||'')}</td><td>${x.q}</td><td>${esc(x.party)}</td><td>${esc(x.place)}</td></tr>`).join('')||'<tr><td colspan=6>No movements</td></tr>';a.textContent=db.p.length;b.textContent=db.p.reduce((z,p)=>z+p.q,0);c.textContent=db.p.filter(p=>p.q<=p.min).length;d.textContent='₹'+db.s.reduce((z,x)=>z+x.amt,0).toFixed(2)}
+function csv(){let rows=[['Date','Type','Product','Qty','Party','Place'],...db.m.map(x=>[x.date,x.type,get(x.id)?.n||'',x.q,x.party,x.place])];let s=rows.map(r=>r.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/csv'}));a.download='stock-report.csv';a.click()}
+render();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+</script></body></html>
